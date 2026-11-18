@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Octopus Bracket</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0d1530;--navy:#1b2e5e;--navy2:#24407c;--blue:#3f78d6;--teal:#7fe3e6;--violet:#6a35c9;--magenta:#ff6bf0;--lav:#d09bff;--k:#06070f;--text:#f2f8ff;--muted:#b5cdf2}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--ink);color:var(--text);font:500 16px/1.45 "Fredoka",system-ui,sans-serif;min-height:100vh}
+.bg{position:fixed;inset:-15%;z-index:0;filter:blur(36px)}
+body[data-scene=deep] .bg{background:radial-gradient(circle at 72% 8%,#2f5cae 0,transparent 48%),linear-gradient(180deg,#1b2d5c 0,#0d1530 70%)}
+body[data-scene=swirl] .bg{background:conic-gradient(from 30deg at 50% 62%,#3b1d78,#8a3fe0,#ff6bf0,#d09bff,#7a38e0,#ff8af7,#3b1d78)}
+.sea{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.sea .c{position:absolute;animation:drift 9s ease-in-out infinite}
+@keyframes drift{50%{transform:translate(24px,-14px)}}
+.sea .t{animation:sway 6s ease-in-out infinite;transform-origin:50% 100%}
+@keyframes sway{50%{transform:rotate(6deg)}}
+header,main,footer{position:relative;z-index:1}
+header{padding:12px 20px 0}.hrow{display:flex;justify-content:space-between;align-items:center;gap:12px}
+header a{font-weight:700;font-size:26px;cursor:pointer;color:#fff;display:flex;align-items:center;gap:8px;text-decoration:none;-webkit-text-stroke:6px var(--k);paint-order:stroke fill}
+header a span{color:var(--teal)}header a i{display:block}
+header a.tip{font-size:16px;background:var(--magenta);color:#2a0a4a;border:3px solid var(--k);box-shadow:0 4px 0 var(--k);border-radius:999px;padding:6px 16px;-webkit-text-stroke:0}
+.wave{display:block;width:100%;height:26px;margin-top:6px}
+main{max-width:1000px;margin:0 auto;padding:24px 20px 40px}
+footer{text-align:center;color:var(--muted);font-size:13px;padding:0 20px 30px}
+h1{font-size:34px;margin:0 0 16px;font-weight:700;color:#fff;-webkit-text-stroke:8px var(--k);paint-order:stroke fill}
+button{font:inherit;font-weight:600;cursor:pointer;border:3px solid var(--k);border-radius:14px;padding:8px 16px;color:var(--text);background:var(--navy2);box-shadow:0 4px 0 var(--k)}
+button:hover{filter:brightness(1.12)}button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--k)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--teal);outline-offset:3px}
+button:disabled{opacity:.45;cursor:default;transform:none;box-shadow:0 4px 0 var(--k)}
+.main{background:var(--teal);color:#06223a}.pick{background:var(--magenta);color:#2a0a4a}.ghost{background:var(--navy)}
+input,select{font:inherit;width:100%;padding:10px 14px;border-radius:14px;border:3px solid var(--k);background:#101c40;color:var(--text)}
+select{width:auto;padding:6px 10px}
+.hint{color:var(--muted);margin:8px 0 12px}.err{color:#ffd9a0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;margin-top:22px}
+.bk,.it,.card,.live,.info{background:var(--navy);border:3px solid var(--k);box-shadow:0 5px 0 var(--k)}
+.bk{border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.mos{display:grid;grid-template-columns:1fr 1fr;gap:3px;border-radius:12px;overflow:hidden;aspect-ratio:2/1;border:3px solid var(--k)}
+.mos img{width:100%;height:100%;object-fit:cover;aspect-ratio:1}
+.bk h3{margin:0;font-size:19px}.bk p{margin:0;color:var(--muted);font-size:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.cols{display:grid;grid-template-columns:1.3fr 1fr;gap:24px}
+.cv{border-radius:8px;object-fit:cover;background:var(--navy2);border:2px solid var(--k)}
+.it{display:flex;align-items:center;gap:10px;padding:8px;border-radius:16px;margin-bottom:12px}
+.it img{width:48px;height:48px}.it div{flex:1;min-width:0}
+.it b,.it small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.it small{color:var(--muted)}
+.mini{padding:6px 12px}
+.info{border-left:8px solid var(--teal);padding:10px 14px;border-radius:14px;margin:12px 0}
+.tabs{display:flex;gap:10px;margin:18px 0 4px}.tabs button{background:var(--navy)}.tabs button.on{background:var(--magenta);color:#2a0a4a}
+.sw{display:flex;align-items:center;gap:8px;margin:14px 0 0}.sw input{width:20px;height:20px;padding:0;accent-color:var(--magenta)}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+.bar b{font-size:30px;color:#fff;-webkit-text-stroke:8px var(--k);paint-order:stroke fill}.bar span{color:#fff;font-weight:600;text-shadow:0 2px 0 var(--k)}
+.arena{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center}
+.vs{width:70px;height:70px;border-radius:50%;background:var(--magenta);border:4px solid var(--k);box-shadow:0 5px 0 var(--k);color:#2a0a4a;font-weight:700;font-size:24px;display:grid;place-items:center}
+.card{position:relative;border-radius:28px;padding:20px;text-align:center}
+.num{position:absolute;top:-16px;left:-8px;width:44px;height:44px;border-radius:50%;background:var(--teal);color:#06223a;border:3px solid var(--k);box-shadow:0 3px 0 var(--k);font-weight:700;font-size:24px;display:grid;place-items:center;z-index:3}
+.art{position:relative;width:min(100%,260px);aspect-ratio:1;margin:0 auto 18px}
+.art .cv{position:relative;width:100%;height:100%;border-radius:14px;z-index:2;border:3px solid var(--k)}
+.disc{position:absolute;top:6%;left:18%;width:88%;height:88%;border-radius:50%;z-index:1;background:radial-gradient(circle,var(--magenta) 0 13%,transparent 14%),repeating-radial-gradient(circle,var(--violet) 0 6px,var(--lav) 6px 9px);border:3px solid var(--k);transition:left .4s}
+.disc.spin{left:30%;animation:sp 2.4s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.card h2{margin:0;font-size:23px}.card p{margin:2px 0 16px;color:var(--muted)}
+.card .row{justify-content:center}
+.champ{text-align:center}.champ svg,.empty svg{display:block;margin:0 auto}.empty{text-align:center;margin-top:30px}
+.live{margin-top:28px;border-radius:22px;padding:14px 16px}
+.live input{max-width:240px}
+.vbar{display:flex;height:36px;border:3px solid var(--k);border-radius:12px;overflow:hidden;margin:12px 0 4px;font-weight:700}
+.vbar div{display:flex;align-items:center;padding:0 12px;min-width:40px;transition:flex .3s}
+#va{background:var(--teal);color:#06223a}#vb{background:var(--magenta);color:#2a0a4a;justify-content:flex-end}
+.stream header,.stream footer,.stream .bar button{display:none}.stream main{max-width:1280px}.stream .card h2{font-size:32px}.stream .art{width:min(100%,360px)}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--teal);color:#06223a;border:3px solid var(--k);padding:10px 18px;border-radius:14px;display:none;font-weight:600;z-index:5}
+@media(max-width:700px){.cols{grid-template-columns:1fr}.arena{grid-template-columns:1fr}.vs{margin:0 auto;width:54px;height:54px}}
+@media(prefers-reduced-motion:reduce){.disc.spin,.sea .c{animation:none}}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"></div><div class="sea" aria-hidden="true"></div>
+<header><div class="hrow"><a data-act="home" tabindex="0" role="link"><i class="logo"></i>Octopus<span>Bracket</span></a><a class="tip" id="tip" target="_blank" rel="noopener" hidden></a></div><svg class="wave" viewBox="0 0 1200 28" preserveAspectRatio="none" aria-hidden="true"><path d="M0 14q37-14 75 0 t75 0 t75 0 t75 0 t75 0 t75 0 t75 0 t75 0 t75 0 t75 0 t75 0 t75 0 t75 0 t75 0 t75 0 t75 0" fill="none" stroke="#06070f" stroke-width="11" stroke-linecap="round"/><path d="M0 14q37-14 75 0 t75 0 t75 0 t75 0 t75 0 t75 0 t75 0 t75 0 t75 0 t75 0 t75 0 t75 0 t75 0 t75 0 t75 0 t75 0" fill="none" stroke="#7fe3e6" stroke-width="4" stroke-linecap="round"/></svg></header>
+<main id="app"></main>
+<footer>Extraits de 30 s et pochettes fournis par Deezer.</footer>
+<div id="toast"></div>
+<script>
+// Pour être rémunéré : colle ici ton lien Ko-fi, Tipeee, PayPal.me, etc. Le bouton n'apparaît que si le lien est rempli.
+const SITE={donateUrl:'',donateLabel:'☕ Soutenir le site'};
+const $=s=>document.querySelector(s),app=$('#app');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const load=()=>{try{return JSON.parse(localStorage.getItem('bf-db'))||[]}catch(e){return[]}};
+const save=()=>{try{localStorage.setItem('bf-db',JSON.stringify(db))}catch(e){toast('Sauvegarde impossible dans ce navigateur')}};
+let db=load(),view='home',draft=null,cur=null,results=[],albumResults=[],lastQ='',lastAq='',known={},playingId=null,seq=0,timer;
+const audio=new Audio();
+['play','pause','ended'].forEach(ev=>audio.addEventListener(ev,updatePlay));
+
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2800)}
+function jsonp(url){return new Promise((res,rej)=>{
+  const cb='cb'+Math.random().toString(36).slice(2),s=document.createElement('script');
+  const done=()=>{clearTimeout(t);delete window[cb];s.remove()};
+  const t=setTimeout(()=>{done();rej()},8000);
+  window[cb]=d=>{done();res(d)};s.onerror=()=>{done();rej()};
+  s.src=url+(url.includes('?')?'&':'?')+'output=jsonp&callback='+cb;document.head.appendChild(s)})}
+
+/* Univers marin : style cartoon, contours noirs épais */
+const K='#06070f';
+const fish=(w,crown,body='#3f78d6',fin='#8fe0e4',k=K)=>`<svg viewBox="0 0 160 90" width="${w}" aria-hidden="true"><g stroke="${k}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"><path d="M126 45L156 16Q150 45 156 74Z" fill="${fin}"/><path d="M8 46Q12 14 62 12Q112 12 132 45Q112 78 62 80Q12 78 8 46Z" fill="${body}"/><path d="M68 48Q94 34 114 54Q92 68 68 58Z" fill="${fin}"/><circle cx="34" cy="36" r="9" fill="#d8f1e6"/></g><path d="M22 30Q60 12 112 28" stroke="#7fe3e6" stroke-width="6" fill="none" stroke-linecap="round" opacity=".8"/><path d="M12 54Q24 66 46 62" stroke="${fin}" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="35" cy="37" r="4.5" fill="${k}"/>${crown?'<path d="M44 14l4-14 10 8 8-10 8 10 10-8 2 14z" fill="#ffe27a" stroke="'+k+'" stroke-width="3.5" stroke-linejoin="round"/>':''}</svg>`;
+const tad=(w,rot)=>`<svg viewBox="0 0 200 110" width="${w}" style="transform:rotate(${rot}deg)" aria-hidden="true"><g stroke="${K}" stroke-width="4" stroke-linejoin="round"><path d="M8 100Q70 62 104 40L118 66Q66 86 8 100Z" fill="#cfa9ff"/><ellipse cx="112" cy="54" rx="22" ry="26" fill="#6a35c9"/><ellipse cx="130" cy="50" rx="26" ry="30" fill="#bfe0ff"/><circle cx="158" cy="44" r="34" fill="#4a8fe8"/><circle cx="166" cy="44" r="15" fill="#1b2a8c"/></g><path d="M140 24Q160 12 184 26" stroke="#d8ecff" stroke-width="6" fill="none" stroke-linecap="round"/></svg>`;
+const tent=(h,flip)=>{const d='M40 200C40 150 10 140 22 100S60 70 44 30';return `<svg viewBox="0 0 80 200" height="${h}" style="transform:scaleX(${flip?-1:1})" aria-hidden="true"><g fill="none" stroke-linecap="round"><path d="${d}" stroke="${K}" stroke-width="30"/><path d="${d}" stroke="#8a3fe0" stroke-width="22"/><path d="M34 192C34 152 4 140 16 100S54 72 38 34" stroke="#d9b8ff" stroke-width="4" opacity=".7"/></g><g fill="#ffd0fb" stroke="${K}" stroke-width="2.5"><circle cx="35" cy="169" r="5"/><circle cx="20" cy="125" r="5"/><circle cx="33" cy="78" r="4.5"/><circle cx="49" cy="52" r="4"/></g></svg>`};
+const octo=(w,crown)=>{const P=['M36 84C20 96 26 114 8 118','M50 92C42 108 50 120 34 126','M64 96C62 110 68 120 58 128','M76 96C78 110 72 120 82 128','M90 92C98 108 90 120 106 126','M104 84C120 96 114 114 132 118'];
+return `<svg viewBox="0 -24 140 154" width="${w}" aria-hidden="true"><g fill="none" stroke-linecap="round">${P.map(d=>`<path d="${d}" stroke="${K}" stroke-width="19"/>`).join('')}${P.map(d=>`<path d="${d}" stroke="#8a3fe0" stroke-width="12"/>`).join('')}</g><path d="M18 70C14 30 40 8 70 8s56 22 52 62c-2 16-18 28-52 28S20 86 18 70z" fill="#8a3fe0" stroke="${K}" stroke-width="4"/><path d="M34 34Q46 16 66 14" stroke="#d9b8ff" stroke-width="7" fill="none" stroke-linecap="round"/><g fill="#d09bff"><circle cx="96" cy="30" r="4"/><circle cx="106" cy="46" r="3"/><circle cx="84" cy="22" r="3"/></g><g stroke="${K}" stroke-width="3.5"><circle cx="50" cy="62" r="13" fill="#e9f7f2"/><circle cx="90" cy="62" r="13" fill="#e9f7f2"/></g><circle cx="53" cy="64" r="6" fill="${K}"/><circle cx="93" cy="64" r="6" fill="${K}"/><path d="M62 82Q70 88 78 82" stroke="${K}" stroke-width="3.5" fill="none" stroke-linecap="round"/>${crown?`<path d="M46 10l4-20 12 9 8-15 8 15 12-9 4 20z" fill="#ffe27a" stroke="${K}" stroke-width="3.5" stroke-linejoin="round"/>`:''}</svg>`};
+const SHOAL=[[60,6,10,0],[38,30,30,-3],[76,58,14,-5],[34,12,60,-2],[50,70,66,-6],[28,48,82,-4]].map(([w,l,t,d],i)=>`<div class="c" style="left:${l}%;top:${t}%;animation-delay:${d}s"><div style="transform:scaleX(${i%2?-1:1})">${fish(w,0,'#26427f','#35609f','#0a1228')}</div></div>`).join('');
+const TADS=`<div class="c" style="left:54%;top:4%">${tad(120,28)}</div><div class="c" style="left:28%;top:76%;animation-delay:-4s">${tad(120,-152)}</div>`;
+const TENTS=`<div class="c t" style="left:-8px;bottom:-12px">${tent(150)}</div><div class="c t" style="right:-8px;bottom:-12px;animation-delay:-2s">${tent(190,1)}</div><div class="c t" style="left:14%;bottom:-44px;animation-delay:-4s">${tent(100)}</div><div class="c t" style="right:16%;bottom:-44px;animation-delay:-1s">${tent(84,1)}</div>`;
+function scene(n){document.body.dataset.scene=n;$('.sea').innerHTML=(n==='swirl'?TADS:SHOAL)+TENTS}
+$('.logo').innerHTML=octo(46);
+
+/* Audio */
+async function refresh(t){try{const d=await jsonp('https://api.deezer.com/track/'+t.id);if(d&&d.preview){t.p=d.preview;save()}}catch(e){}}
+function playTrack(t){
+  if(!t)return;
+  if(playingId===t.id&&!audio.paused){audio.pause();return}
+  playingId=t.id;audio.src=t.p||'about:blank';
+  audio.play().catch(async()=>{await refresh(t);audio.src=t.p;audio.play().catch(()=>toast('Extrait indisponible'))});
+}
+function stop(){audio.pause();playingId=null}
+function updatePlay(){
+  document.querySelectorAll('[data-act=play]').forEach(b=>{
+    const on=playingId===b.dataset.id&&!audio.paused,mini=b.classList.contains('mini');
+    b.textContent=mini?(on?'⏸':'▶'):(on?'⏸ Pause':'▶ Écouter')});
+  document.querySelectorAll('.card').forEach(c=>{
+    const d=c.querySelector('.disc');if(d)d.classList.toggle('spin',playingId===c.dataset.id&&!audio.paused)});
+}
+
+/* Logique du bracket */
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+function sizeFor(n){let s=2;while(s<n)s*=2;return s}
+function makeBracket(title,tracks,random=true){
+  const size=sizeFor(tracks.length),byes=size-tracks.length,ts=random?shuffle(tracks):tracks.slice(),m=[];
+  for(let i=0;i<size/2;i++)m.push(i<byes?{a:ts.shift(),b:null}:{a:ts.shift(),b:ts.shift()});
+  const b={id:Date.now().toString(36),title,tracks,random,rounds:[random?shuffle(m):m],done:false};
+  advance(b);return b}
+function advance(b){
+  for(;;){
+    const R=b.rounds[b.rounds.length-1];
+    R.forEach(m=>{if(m.w===undefined&&m.b===null)m.w=m.a});
+    if(!R.every(m=>m.w!==undefined))return;
+    if(R.length===1){b.done=true;return}
+    const nx=[];for(let i=0;i<R.length;i+=2)nx.push({a:R[i].w,b:R[i+1].w});
+    b.rounds.push(nx)}}
+function roundName(n){return n===1?'Finale':n===2?'Demi-finales':n===4?'Quarts de finale':n===8?'Huitièmes de finale':'Tour de '+n*2}
+const champion=b=>b.rounds[b.rounds.length-1][0].w;
+const img=(t,c='')=>`<img class="cv ${c}" src="${esc(t.c)}" alt="" loading="lazy">`;
+
+/* Vues */
+function show(v){view=v;stop();clearInterval(vt);scene(v==='battle'||v==='champ'?'swirl':'deep');({home:rHome,create:rCreate,battle:rBattle,champ:rChamp})[v]()}
+function rHome(){
+  app.innerHTML=`<h1>Mes brackets</h1><button class="main" data-act="new">Créer un bracket</button>`+
+  (db.length?`<div class="grid">${db.map(b=>{
+    const R=b.rounds[b.rounds.length-1];
+    const st=b.done?'Champion : '+esc(champion(b).t):'En cours : '+roundName(R.length);
+    return `<div class="bk"><div class="mos">${b.tracks.slice(0,4).map(t=>img(t)).join('')}</div>
+    <h3>${esc(b.title)}</h3><p>${b.tracks.length} sons. ${st}</p>
+    <div class="row"><button class="main" data-act="open" data-id="${b.id}">${b.done?'Voir le résultat':'Reprendre'}</button>
+    <button class="ghost" data-act="replay" data-id="${b.id}">Rejouer</button>
+    <button class="ghost" data-act="share" data-id="${b.id}">Partager</button>
+    <button class="ghost" data-act="del" data-id="${b.id}">Supprimer</button></div></div>`}).join('')}</div>`
+  :`<div class="empty">${octo(120)}<p class="hint">Aucun bracket pour l’instant. Crée-en un, il restera sauvegardé dans ce navigateur.</p></div>`)}
+
+function rCreate(){
+  const alb=draft.mode==='album';
+  app.innerHTML=`<h1>Nouveau bracket</h1>
+  <input id="title" placeholder="Nom du bracket (ex. Meilleur son de l’été)" value="${esc(draft.title)}" aria-label="Nom du bracket">
+  <div class="tabs" role="tablist"><button role="tab" aria-selected="${!alb}" class="${alb?'':'on'}" data-act="tab" data-id="tracks">Titre par titre</button><button role="tab" aria-selected="${alb}" class="${alb?'on':''}" data-act="tab" data-id="album">Depuis un album</button></div>
+  <div class="cols" style="margin-top:16px"><section>${alb?
+   `<input id="aq" placeholder="Nom d’un album (ex. Pandemonium Vald)" aria-label="Recherche d’album" autocomplete="off"><p class="hint">Choisis l’album : tous ses sons remplissent le bracket automatiquement.</p><div id="ares"></div>`:
+   `<input id="q" placeholder="Chercher un titre ou un artiste sur Deezer" aria-label="Recherche Deezer" autocomplete="off"><div id="res"></div>`}</section>
+  <section><h2 style="margin:0 0 8px;font-size:20px">Sons du bracket</h2><div id="list"></div></section></div>`;
+  if(alb)$('#aq').value=lastAq;else $('#q').value=lastQ;
+  renderList();alb?renderAlbums():renderResults()}
+function renderResults(){
+  const box=$('#res');if(!box)return;
+  results.forEach(t=>known[t.id]=t);
+  box.innerHTML=results.map(t=>{const has=draft.tracks.some(x=>x.id===t.id);
+    return `<div class="it">${img(t)}<div><b>${esc(t.t)}</b><small>${esc(t.a)}</small></div>
+    <button class="mini ghost" data-act="play" data-id="${t.id}">▶</button>
+    <button class="mini ${has?'ghost':'main'}" data-act="${has?'rm':'add'}" data-id="${t.id}">${has?'Retirer':'Ajouter'}</button></div>`}).join('')}
+function renderList(){
+  const n=draft.tracks.length,size=sizeFor(Math.max(n,2)),byes=size-n;
+  draft.tracks.forEach(t=>known[t.id]=t);
+  $('#list').innerHTML=(n?draft.tracks.map(t=>`<div class="it">${img(t)}<div><b>${esc(t.t)}</b><small>${esc(t.a)}</small></div>
+    <button class="mini ghost" data-act="play" data-id="${t.id}" aria-label="Écouter">▶</button>
+    <button class="mini ghost" data-act="rm" data-id="${t.id}" aria-label="Retirer ce son">✕</button></div>`).join(''):'<p class="hint">Ajoute au moins 2 sons.</p>')+
+  (n>=2?`<div class="info">${n} sons : bracket de ${size}${byes?`, ${byes} place${byes>1?'s':''} vide${byes>1?'s':''} (${byes>1?'ces sons passent':'ce son passe'} directement au tour suivant)`:''}.</div>`:'')+
+  `<label class="sw"><input type="checkbox" id="rnd" ${draft.random?'checked':''}> Tirage au sort aléatoire</label>
+  <p class="hint">${draft.random?'Les duels seront tirés au hasard au lancement.':'Duels dans l’ordre de ta liste : 1er contre 2e, 3e contre 4e…'}</p>
+  <div class="row"><button class="ghost" data-act="shuf" ${n<2?'disabled':''}>Mélanger la liste</button><button class="ghost" data-act="clear" ${n?'':'disabled'}>Tout vider</button></div>
+  <div class="row" style="margin-top:12px"><button class="main" data-act="start" ${n<2?'disabled':''}>Lancer le tournoi</button></div>`}
+async function search(){
+  const q=$('#q').value.trim(),box=$('#res'),my=++seq;
+  if(q.length<2){results=[];box.innerHTML='';return}
+  box.innerHTML='<p class="hint">Recherche en cours…</p>';
+  try{
+    const d=await jsonp('https://api.deezer.com/search?limit=15&q='+encodeURIComponent(q));
+    if(my!==seq)return;
+    results=(d.data||[]).filter(x=>x.preview).map(x=>({id:String(x.id),t:x.title_short||x.title,a:x.artist.name,c:x.album.cover_medium,p:x.preview}));
+    if(!results.length)box.innerHTML='<p class="hint">Aucun résultat avec extrait.</p>';else renderResults();
+  }catch(e){if(my===seq)box.innerHTML='<p class="hint err">Deezer ne répond pas. Ouvre ce fichier depuis ton ordinateur ou ton propre hébergement, pas depuis un aperçu isolé.</p>'}}
+
+function renderAlbums(){
+  const box=$('#ares');if(!box)return;
+  box.innerHTML=albumResults.map(al=>{const on=draft.albumId===al.id;
+    return `<div class="it">${img(al)}<div><b>${esc(al.t)}</b><small>${esc(al.a)} · ${al.n} titres</small></div>
+    <button class="mini ${on?'ghost':'main'}" data-act="album" data-id="${al.id}" ${on?'disabled':''}>${on?'Chargé':'Charger'}</button></div>`}).join('')}
+async function searchAlbum(){
+  const q=$('#aq').value.trim(),box=$('#ares'),my=++seq;
+  if(q.length<2){albumResults=[];box.innerHTML='';return}
+  box.innerHTML='<p class="hint">Recherche en cours…</p>';
+  try{
+    const d=await jsonp('https://api.deezer.com/search/album?limit=10&q='+encodeURIComponent(q));
+    if(my!==seq)return;
+    albumResults=(d.data||[]).map(x=>({id:String(x.id),t:x.title,a:x.artist.name,c:x.cover_medium,n:x.nb_tracks}));
+    if(!albumResults.length)box.innerHTML='<p class="hint">Aucun album trouvé.</p>';else renderAlbums();
+  }catch(e){if(my===seq)box.innerHTML='<p class="hint err">Deezer ne répond pas. Ouvre ce fichier depuis ton ordinateur ou ton propre hébergement, pas depuis un aperçu isolé.</p>'}}
+async function loadAlbum(id){
+  const al=albumResults.find(x=>x.id===id);if(!al)return;
+  toast('Chargement de l’album…');
+  try{
+    const d=await jsonp('https://api.deezer.com/album/'+id+'/tracks?limit=100'),all=d.data||[];
+    const tr=all.filter(x=>x.preview).map(x=>({id:String(x.id),t:x.title_short||x.title,a:x.artist.name,c:al.c,p:x.preview}));
+    if(!tr.length){toast('Aucun extrait disponible pour cet album');return}
+    draft.tracks=tr;draft.albumId=id;
+    if(!draft.title.trim()){draft.title=al.t+' – '+al.a;$('#title').value=draft.title}
+    renderList();renderAlbums();
+    toast(tr.length+' sons chargés'+(all.length>tr.length?' ('+(all.length-tr.length)+' sans extrait)':''));
+  }catch(e){toast('Deezer ne répond pas')}}
+
+function card(t,side){
+  known[t.id]=t;
+  return `<article class="card" data-id="${t.id}"><span class="num">${side==='a'?1:2}</span><div class="art"><div class="disc"></div>${img(t)}</div>
+  <h2>${esc(t.t)}</h2><p>${esc(t.a)}</p><div class="row">
+  <button class="ghost" data-act="play" data-id="${t.id}">▶ Écouter</button>
+  <button class="main pick" data-act="pick" data-side="${side}">Celui-ci gagne</button></div></article>`}
+function rBattle(){
+  const b=cur;if(b.done)return show('champ');
+  const R=b.rounds[b.rounds.length-1],m=R.find(x=>x.w===undefined);
+  const real=R.filter(x=>x.b).length,fin=R.filter(x=>x.b&&x.w!==undefined).length;
+  const fresh=b.rounds.length===1&&fin===0;
+  app.innerHTML=`<div class="bar"><b>${roundName(R.length)}</b><span>Duel ${fin+1} sur ${real}</span>${fresh?'<button class="ghost mini" data-act="reshuffle">Re-mélanger le bracket</button>':''}</div>
+  <div class="arena">${card(m.a,'a')}<div class="vs">VS</div>${card(m.b,'b')}</div><div id="live" class="live"></div>`;
+  updatePlay();liveUI();startVote()}
+function rChamp(){
+  const t=champion(cur);known[t.id]=t;
+  app.innerHTML=`<div class="champ"><h1>${esc(cur.title)}</h1>${octo(140,1)}<p class="hint">Le roi des abysses</p>
+  <div class="card" data-id="${t.id}" style="max-width:420px;margin:0 auto"><div class="art"><div class="disc"></div>${img(t)}</div>
+  <h2>${esc(t.t)}</h2><p>${esc(t.a)}</p><div class="row"><button class="main" data-act="play" data-id="${t.id}">▶ Écouter</button></div></div>
+  <div class="row" style="justify-content:center;margin-top:20px"><button class="ghost" data-act="replay" data-id="${cur.id}">Rejouer ce bracket</button><button class="ghost" data-act="share" data-id="${cur.id}">Partager</button>
+  <button class="ghost" data-act="home">Mes brackets</button></div></div>`;
+  updatePlay()}
+
+/* Live, vote du chat Twitch, partage */
+let ws=null,chan='',votes=new Map(),vt=null,vleft=0,vdur=0;
+try{chan=localStorage.getItem('bf-chan')||'';vdur=+localStorage.getItem('bf-dur')||0}catch(e){}
+const curMatch=()=>cur.rounds[cur.rounds.length-1].find(x=>x.w===undefined);
+function pick(side){if(view!=='battle')return;const m=curMatch();m.w=side==='a'?m.a:m.b;advance(cur);save();show(cur.done?'champ':'battle')}
+function tally(){let a=0,b=0;votes.forEach(v=>v===1?a++:b++);return[a,b]}
+function updateVotes(){const A=$('#va');if(!A)return;const[a,b]=tally(),B=$('#vb');A.textContent=a;B.textContent=b;A.style.flex=(a+1)+' 1 0';B.style.flex=(b+1)+' 1 0'}
+function tick(){const e=$('#vleft');if(e)e.textContent='Vote ouvert : '+vleft+' s · tape 1 ou 2 dans le chat'}
+function startVote(){votes.clear();clearInterval(vt);updateVotes();if(!ws||!vdur)return;vleft=vdur;tick();vt=setInterval(()=>{vleft--;if(vleft<=0){clearInterval(vt);closeVote()}else tick()},1000)}
+function closeVote(){clearInterval(vt);const[a,b]=tally();if(!a&&!b){toast('Aucun vote reçu pour ce duel');return}pick(a===b?(Math.random()<.5?'a':'b'):a>b?'a':'b')}
+function twClose(){if(ws){const w=ws;ws=null;w.close()}}
+function twConnect(ch){
+  twClose();ch=ch.trim().replace(/^#/,'').toLowerCase();if(!ch)return toast('Entre le nom de ta chaîne Twitch');
+  chan=ch;try{localStorage.setItem('bf-chan',ch)}catch(e){}
+  const w=ws=new WebSocket('wss://irc-ws.chat.twitch.tv:443');
+  w.onopen=()=>{w.send('PASS SCHMOOPIIE');w.send('NICK justinfan'+(10000+Math.random()*80000|0));w.send('JOIN #'+ch)};
+  w.onmessage=e=>e.data.split('\r\n').forEach(l=>{
+    if(l.startsWith('PING'))w.send('PONG :tmi.twitch.tv');
+    const m=l.match(/^:([^!]+)![^ ]+ PRIVMSG #[^ ]+ :(.*)$/);
+    if(m&&view==='battle'){const v=m[2].trim().match(/^!?([12])$/);if(v){votes.set(m[1],+v[1]);updateVotes()}}});
+  w.onerror=()=>toast('Connexion au chat impossible');
+  w.onclose=()=>{if(ws===w){ws=null;liveUI()}};
+  liveUI();startVote()}
+function liveUI(){const L=$('#live');if(!L)return;
+  L.innerHTML=ws?`<div class="row"><b>Live Twitch · #${esc(chan)}</b>
+  <select id="dur" aria-label="Durée du vote">${[[0,'Clôture manuelle'],[30,'30 s'],[60,'60 s'],[90,'90 s']].map(([v,l])=>`<option value="${v}" ${v==vdur?'selected':''}>${l}</option>`).join('')}</select>
+  <button class="main" data-act="close">Clôturer le vote</button><button class="ghost" data-act="twoff">Déconnecter</button><button class="ghost" data-act="stream">Mode stream</button></div>
+  <div class="vbar"><div id="va">0</div><div id="vb">0</div></div><p class="hint" id="vleft">Les viewers votent en tapant 1 ou 2 dans le chat.</p>`
+  :`<div class="row"><b>Vote en live</b><input id="chan" placeholder="Ta chaîne Twitch" value="${esc(chan)}" aria-label="Chaîne Twitch"><button class="main" data-act="tw">Connecter le chat</button><button class="ghost" data-act="stream">Mode stream</button></div>
+  <p class="hint">Tes viewers votent en tapant 1 ou 2 dans ton chat. Raccourcis : touches 1 et 2 pour choisir, ← → pour écouter. Sur YouTube, utilise le mode stream dans OBS.</p>`;
+  updateVotes()}
+function shareLink(b){
+  const j=JSON.stringify({n:b.title,t:b.tracks.map(x=>[x.id,x.t,x.a,x.c])});
+  return location.href.split('#')[0]+'#b='+btoa(String.fromCharCode(...new TextEncoder().encode(j)))}
+function share(b){
+  const l=shareLink(b);
+  if(location.protocol==='file:')toast('Ce lien ne marchera que si le site est hébergé en ligne');
+  else toast('Lien copié');
+  (navigator.clipboard?navigator.clipboard.writeText(l):Promise.reject()).catch(()=>prompt('Copie ce lien :',l))}
+function importHash(){
+  const m=location.hash.match(/^#b=(.+)$/);if(!m)return false;
+  try{
+    const o=JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(m[1]),c=>c.charCodeAt(0))));
+    draft={title:o.n||'',tracks:o.t.map(x=>({id:String(x[0]),t:x[1],a:x[2],c:x[3],p:''})),random:true,mode:'tracks'};
+    results=[];history.replaceState(null,'',location.pathname+location.search);show('create');return true
+  }catch(e){return false}}
+
+/* Actions */
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]');if(!el)return;
+  const a=el.dataset.act,id=el.dataset.id,bk=db.find(x=>x.id===id);
+  if(a==='play')playTrack(known[id]);
+  else if(a==='home')show('home');
+  else if(a==='new'){draft={title:'',tracks:[],random:true,mode:'tracks'};results=[];albumResults=[];lastQ='';lastAq='';show('create')}
+  else if(a==='add'){const t=results.find(x=>x.id===id);if(t&&!draft.tracks.some(x=>x.id===id)){draft.tracks.push(t);renderList();renderResults()}}
+  else if(a==='rm'){draft.tracks=draft.tracks.filter(x=>x.id!==id);renderList();renderResults()}
+  else if(a==='start'){
+    const title=draft.title.trim()||'Bracket du '+new Date().toLocaleDateString('fr-FR');
+    cur=makeBracket(title,draft.tracks,draft.random);db.unshift(cur);save();show(cur.done?'champ':'battle')}
+  else if(a==='open'&&bk){cur=bk;show(bk.done?'champ':'battle')}
+  else if(a==='replay'&&bk){cur=makeBracket(bk.title,bk.tracks,true);db.unshift(cur);save();show('battle')}
+  else if(a==='del'&&bk){if(confirm('Supprimer « '+bk.title+' » ?')){db=db.filter(x=>x!==bk);save();rHome()}}
+  else if(a==='tab'){draft.mode=id;stop();rCreate()}
+  else if(a==='album')loadAlbum(id);
+  else if(a==='shuf'){draft.tracks=shuffle(draft.tracks);renderList()}
+  else if(a==='clear'){draft.tracks=[];draft.albumId=null;renderList();renderResults();renderAlbums()}
+  else if(a==='reshuffle'){const nb=makeBracket(cur.title,cur.tracks,true);cur.rounds=nb.rounds;cur.done=nb.done;cur.random=true;save();show('battle')}
+  else if(a==='pick')pick(el.dataset.side);
+  else if(a==='tw')twConnect($('#chan').value);
+  else if(a==='twoff'){twClose();clearInterval(vt);liveUI()}
+  else if(a==='close')closeVote();
+  else if(a==='stream')document.body.classList.toggle('stream');
+  else if(a==='share'&&bk)share(bk);
+});
+document.addEventListener('input',e=>{
+  if(e.target.id==='title')draft.title=e.target.value;
+  if(e.target.id==='rnd'){draft.random=e.target.checked;renderList()}
+  if(e.target.id==='q'){lastQ=e.target.value;clearTimeout(timer);timer=setTimeout(search,400)}
+  if(e.target.id==='aq'){lastAq=e.target.value;clearTimeout(timer);timer=setTimeout(searchAlbum,400)}});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&e.target.id==='q'){clearTimeout(timer);search()}
+  if(e.key==='Enter'&&e.target.id==='aq'){clearTimeout(timer);searchAlbum()}
+  if(e.key==='Enter'&&e.target.matches('header a[data-act=home]'))show('home');
+  if(view==='battle'&&!/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)){
+    if(e.key==='1')pick('a');if(e.key==='2')pick('b');
+    if(e.key==='ArrowLeft')playTrack(curMatch().a);if(e.key==='ArrowRight')playTrack(curMatch().b)}});
+document.addEventListener('change',e=>{if(e.target.id==='dur'){vdur=+e.target.value;try{localStorage.setItem('bf-dur',vdur)}catch(_){}startVote()}});
+if(SITE.donateUrl){const t=$('#tip');t.href=SITE.donateUrl;t.textContent=SITE.donateLabel;t.hidden=false}
+scene('deep');if(!importHash())rHome();
+</script>
+</body>
+</html>
